@@ -1,0 +1,4 @@
+[
+  { "id": 1, "text": "Brot kaufen", "checked": false },
+  { "id": 2, "text": "Kerze mitbringen", "checked": true }
+]
