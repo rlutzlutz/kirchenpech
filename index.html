@@ -2,23 +2,21 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Kirchenpech</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <main>
-    <h1>Kirchenpech</h1>
-    <div class="input-group">
-      <input type="text" id="item-input" placeholder="Add new item..." />
-      <button id="add-btn">Add</button>
-    </div>
+    <h1>📝 Kirchenpech</h1>
+    <form id="item-form">
+      <input type="text" id="item-input" placeholder="New item..." required />
+      <button type="submit">Add</button>
+    </form>
     <ul id="list"></ul>
+    <button id="clear-btn">Clear All</button>
   </main>
 
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script src="firebase-config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

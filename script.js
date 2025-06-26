@@ -1,73 +1,61 @@
+const form = document.getElementById("item-form");
 const input = document.getElementById("item-input");
-const addBtn = document.getElementById("add-btn");
 const list = document.getElementById("list");
+const clearBtn = document.getElementById("clear-btn");
 
-const listRef = db.ref("sharedList");
+let items = JSON.parse(localStorage.getItem("kirchenpech")) || [];
 
-// Add item to Firebase
-addBtn.addEventListener("click", () => {
-  const text = input.value.trim();
-  if (text) {
-    const newItemRef = listRef.push();
-    newItemRef.set({ text, checked: false });
-    input.value = "";
-  }
-});
-
-input.addEventListener("keydown", (e) => {
-  if (e.key === "Enter") addBtn.click();
-});
-
-// Render item to list
-function renderItem(key, item) {
-  const li = document.createElement("li");
-  if (item.checked) li.classList.add("checked");
-
-  const checkbox = document.createElement("input");
-  checkbox.type = "checkbox";
-  checkbox.checked = item.checked;
-  checkbox.addEventListener("change", () => {
-    listRef.child(key).update({ checked: checkbox.checked });
-  });
-
-  const span = document.createElement("span");
-  span.textContent = item.text;
-
-  const deleteBtn = document.createElement("button");
-  deleteBtn.textContent = "×";
-  deleteBtn.addEventListener("click", () => {
-    listRef.child(key).remove();
-  });
-
-  li.appendChild(checkbox);
-  li.appendChild(span);
-  li.appendChild(deleteBtn);
-  li.id = key;
-  list.appendChild(li);
+function saveItems() {
+  localStorage.setItem("kirchenpech", JSON.stringify(items));
 }
 
-// Listen for new items
-listRef.on("child_added", (snapshot) => {
-  renderItem(snapshot.key, snapshot.val());
-});
+function renderList() {
+  list.innerHTML = "";
+  items.forEach((item, index) => {
+    const li = document.createElement("li");
 
-// Listen for changes
-listRef.on("child_changed", (snapshot) => {
-  const li = document.getElementById(snapshot.key);
-  if (li) {
-    li.querySelector("input").checked = snapshot.val().checked;
-    if (snapshot.val().checked) {
-      li.classList.add("checked");
-    } else {
-      li.classList.remove("checked");
-    }
+    const checkbox = document.createElement("input");
+    checkbox.type = "checkbox";
+    checkbox.checked = item.checked;
+    checkbox.addEventListener("change", () => {
+      items[index].checked = checkbox.checked;
+      saveItems();
+    });
+
+    const text = document.createElement("span");
+    text.textContent = item.text;
+    if (item.checked) text.style.textDecoration = "line-through";
+
+    const deleteBtn = document.createElement("button");
+    deleteBtn.textContent = "❌";
+    deleteBtn.addEventListener("click", () => {
+      items.splice(index, 1);
+      saveItems();
+      renderList();
+    });
+
+    li.append(checkbox, text, deleteBtn);
+    list.appendChild(li);
+  });
+}
+
+form.addEventListener("submit", (e) => {
+  e.preventDefault();
+  const newItem = input.value.trim();
+  if (newItem) {
+    items.push({ text: newItem, checked: false });
+    input.value = "";
+    saveItems();
+    renderList();
   }
 });
 
-// Listen for deletions
-listRef.on("child_removed", (snapshot) => {
-  const li = document.getElementById(snapshot.key);
-  if (li) {
-    li.remove();
+clearBtn.addEventListener("click", () => {
+  if (confirm("Clear the entire list?")) {
+    items = [];
+    saveItems();
+    renderList();
   }
 });
+
+renderList();
