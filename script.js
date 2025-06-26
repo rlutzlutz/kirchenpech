@@ -1,61 +1,18 @@
-const form = document.getElementById("item-form");
-const input = document.getElementById("item-input");
 const list = document.getElementById("list");
-const clearBtn = document.getElementById("clear-btn");
+const listUrl = 'https://raw.githubusercontent.com/rlutzlutz/kirchenpech/main/list.json';
 
-let items = JSON.parse(localStorage.getItem("kirchenpech")) || [];
+fetch(listUrl)
+  .then(response => response.json())
+  .then(data => {
+    renderList(data);
+  })
+  .catch(err => console.error("Couldn't load the list:", err));
 
-function saveItems() {
-  localStorage.setItem("kirchenpech", JSON.stringify(items));
-}
-
-function renderList() {
+function renderList(items) {
   list.innerHTML = "";
-  items.forEach((item, index) => {
+  items.forEach(item => {
     const li = document.createElement("li");
-
-    const checkbox = document.createElement("input");
-    checkbox.type = "checkbox";
-    checkbox.checked = item.checked;
-    checkbox.addEventListener("change", () => {
-      items[index].checked = checkbox.checked;
-      saveItems();
-    });
-
-    const text = document.createElement("span");
-    text.textContent = item.text;
-    if (item.checked) text.style.textDecoration = "line-through";
-
-    const deleteBtn = document.createElement("button");
-    deleteBtn.textContent = "❌";
-    deleteBtn.addEventListener("click", () => {
-      items.splice(index, 1);
-      saveItems();
-      renderList();
-    });
-
-    li.append(checkbox, text, deleteBtn);
+    li.textContent = item.checked ? `✅ ${item.text}` : `⬜️ ${item.text}`;
     list.appendChild(li);
   });
 }
-
-form.addEventListener("submit", (e) => {
-  e.preventDefault();
-  const newItem = input.value.trim();
-  if (newItem) {
-    items.push({ text: newItem, checked: false });
-    input.value = "";
-    saveItems();
-    renderList();
-  }
-});
-
-clearBtn.addEventListener("click", () => {
-  if (confirm("Clear the entire list?")) {
-    items = [];
-    saveItems();
-    renderList();
-  }
-});
-
-renderList();
